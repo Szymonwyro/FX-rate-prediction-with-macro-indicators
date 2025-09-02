@@ -20,7 +20,7 @@ macro_vars = {
 fx_data = {}
 
 for pair in fx_pairs:
-    fx_data[pair] = pd.read_csv(f'Data/{pair}.csv', parse_dates=['Date'], index_col='Date')['Price'] #CSV files here start in 2025 so needs changing
+    fx_data[pair] = pd.read_csv(f'Data/{pair}.csv', parse_dates=['Date'], index_col='Date')['Price']
 
 fx_df = pd.DataFrame(fx_data)
 print("FX data head:", fx_df.head())
@@ -31,7 +31,7 @@ print("Returns data head:", returns_df.head())
 
 macro_df = pd.DataFrame()
 for name, code in macro_vars.items():
-    series = pdr.DataReader(code, 'fred', start="2015-01-01", end="2025-01-01") # Some missing data here in 2025 as FX data runs after 2025-01-01
+    series = pdr.DataReader(code, 'fred', start="2015-01-01", end="2025-01-01")
     macro_df[name] = series
 
 macro_df = macro_df.resample('D').ffill()
@@ -39,6 +39,11 @@ macro_df = macro_df.reindex(fx_df.index).ffill()
 print(macro_df.head())
 
 data = pd.concat([returns_df, macro_df], axis=1).dropna()
+
+print("Missing values per column:")
+print(data.isna().sum())
+clean_df = data.dropna()
+
 print("Combined data head:", data.head())
 
 plt.figure(figsize=(12,6))
